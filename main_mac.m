@@ -1,4 +1,4 @@
-function main(pathToData, varargin)
+function main_mac(pathToData, varargin)
 %% Description
 % Motion is estimated with a brigthness constancy data term and a feature 
 % matching similarity term. The sequences are warped according to the 
@@ -6,7 +6,7 @@ function main(pathToData, varargin)
 % For more details see the paper: "Imaging neural activity in the ventral
 % nerve cord of behaving adult Drosophila", bioRxiv
 % 
-% This function serves primarily as a basis to create an executable.
+% This function serves primarily as a basis to create an executable on a Mac.
 % 
 %% Input
 % pathToData: path to the folder containing the sequences in TIF format.
@@ -28,15 +28,16 @@ function main(pathToData, varargin)
 %           Can be multiple values, e.g.: "[10 50 100]" 
 % -N VALUE: number of frames to process (use -1 for all frames), default is -1
 % -results_dir PATH: path to the result folder, default is 'results/'
-% -linux: use this option if you are on Linux (used by default) 
-% -mac: use this option if you are on a Mac
 % 
 %% Examples
-% The executable version can be called directly through the command line 
-% (assuming the executable is in the working directory, and is called motion_compensation):
-%   $ ./motion_compensation data/experiment_1 -l 500 -g 100 -result_dir results_1 
-%   $ ./motion_compensation data/experiment_2 -result_dir results_2 -g 10
-%   $ ./motion_compensation data/experiment_3 -mac -N 5
+% The executable has to be launched through the run_*.sh script with MATLAB
+% or MCR root as the first argument. To simplify this, make an alias.
+% E.g.: alias motion_compensation="run_motion_compensation.sh /usr/local/MATLAB/R2018a"
+% Then, use it as any command:
+%   $ motion_compensation -help
+%   $ motion_compensation data/experiment_1 -l 500 -g 100 -results_dir results_1 
+%   $ motion_compensation data/experiment_2 -results_dir results_2 -g 10
+%   $ motion_compensation data/experiment_3 -mac -N 5
 
 %% Input - Output initialization
 % Boolean to see if we perform multi motion compensation (i.e. multiple lambas/gammas)
@@ -60,9 +61,7 @@ if sum(strcmp(varargin, '-h')) || sum(strcmp(varargin, '-help')) || ...
         '                         Can be multiple values, e.g.: "[10 50 100]"\n' ...
         '    -N VALUE           - Number of frames to process (use -1 for all frames),\n' ...
         '                         default is -1\n' ...
-        '    -results_dir PATH  - Path to the result folder, default is results/\n' ...
-        '    -linux             - Use this option if you are on Linux (used by default)\n' ...
-        '    -mac               - Use this option if you are on a Mac\n\n' ...
+        '    -results_dir PATH  - Path to the result folder, default is results/\n\n' ...
         'Examples:\n' ...
         '  $ motion_compensation data/experiment_1 -l 500 -g 100 -result_dir results_1\n' ... 
         '  $ motion_compensation data/experiment_2 -result_dir results_2 -g 10\n' ...
@@ -111,18 +110,6 @@ if sum(strcmp(varargin, '-results_dir'))
 else
     fnSave = 'results/';
 end
-% OS type
-% TODO: change this to compilation time!
-if sum(strcmp(varargin, '-mac')) 
-    if sum(strcmp(varargin, '-linux'))
-        fprintf(['-mac and -linux options were both activated. '...
-              'Please choose only one.\n'])
-        return
-    end
-    fnDeepMatching='code/external/deepmatching_1.2.2_c++_mac';
-else
-    fnDeepMatching='code/external/deepmatching_1.2.2_c++_linux';
-end
 
 % Initialize filenames
 fnMatch = fullfile(pathToData, 'tdTom.tif');  % Sequence used for the feature matching similarity term
@@ -142,18 +129,13 @@ if ~exist(fnSave, 'dir')
     mkdir(fnSave);
 end
 
+% Folder of the DeepMatching executable
+fnDeepMatching='code/external/deepmatching_1.2.2_c++_mac';
+
 %% Set Paths
-% Even when deployed it searches for ij.jar and mij.jar, so they must be
-% at the same place!
-fnIJ  = '/usr/local/MATLAB/R2018a/java/jar/ij.jar';     % Path to "ij.jar"
-fnMIJ = '/usr/local/MATLAB/R2018a/java/jar/mij.jar';   % Path to "mij.jar"
-javaaddpath(fnIJ);
-javaaddpath(fnMIJ);
-if ~isdeployed
-    addpath('code');
-    addpath('code/external/utils');
-    addpath(genpath('code/external/InvPbLib'));
-end
+% Uses the setPath.m script
+% Path to ij.jar and mij.jar should be edited there !
+setPath;
 
 %% Start parallel pool
 poolobj = gcp('nocreate');
