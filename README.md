@@ -24,7 +24,7 @@ Code of the motion compensation algorithm described in the article “Imaging ne
       ```
 * You might want to create an alias to launch the executable more easily (cf. **How to run**):  
    ```  
-   alias motion_compensation="/path/to/motion_compensation/run_motion_compensation.sh /path/to/MATLAB/Release"  
+   alias motion_compensation="/path/to/motion_compensation/run_motion_compensation.sh /path/to/MATLAB"  
    ```  
    You can add this line to your .bashrc file to automatically have this alias when you start a terminal. 
    
@@ -34,19 +34,19 @@ After the compilation, two new files have been created: `motion_compensation` an
 
 To run the program, write in the terminal:
 ```
-./run_motion_computation.sh /path/to/MATLAB/Release /path/to/data [-option | -option VALUE]
+./run_motion_computation.sh /path/to/MATLAB /path/to/data [-option | -option VALUE]
 ```
 
 To see the available options and optional arguments:
 ```
-./run_motion_computation.sh /path/to/MATLAB/Release -h
+./run_motion_computation.sh /path/to/MATLAB -h
 ```
 
 I recommend setting an alias to launch the motion computation without having to use the script with the MATLAB directory. E.g.:
 ```
-alias motion_compensation="/path/to/motion_compensation/run_motion_compensation.sh /path/to/MATLAB/Release"  
+alias motion_compensation="/path/to/motion_compensation/run_motion_compensation.sh /path/to/MATLAB"  
 ```
-You can then directly write:
+You can then directly write in the terminal:
 ```
 motion_computation /path/to/data [-option | -option VALUE]
 ```
@@ -67,16 +67,16 @@ Usage: motion_compensation pathToData [-option | -option VALUE]
 
     -h|-help           - Display this help message
     -l VALUE           - Regularization parameter lambda, default is 1000
-                         Can be multiple values, e.g.: "[100 500 1000]"
+                         Can be multiple values, e.g.: -l "[100 500 1000]"
     -g VALUE           - Strength of the feature matching constraint gamma,
                          default is 100
-                         Can be multiple values, e.g.: "[10 50 100]"
+                         Can be multiple values, e.g.: -g "[10 50 100]"
     -N VALUE           - Number of frames to process (use -1 for all frames),
                          default is -1
     -results_dir PATH  - Path to the result folder, default is results/
 
 Examples:
   $ motion_compensation data/experiment_1 -l 500 -g 100 -result_dir results_1
-  $ motion_compensation data/experiment_2 -result_dir results_2 -g 10
-  $ motion_compensation data/experiment_3 -mac -N 5
+  $ motion_compensation data/experiment_2 -result_dir results_2 -g "[10 20]"
+  $ motion_compensation data/experiment_3 -N 5
 ```
