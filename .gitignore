@@ -38,3 +38,13 @@
 # Output
 tmp
 results
+
+# Compilation outputs
+mccExcludedFiles.log
+readme.txt
+requiredMCRProducts.txt
+motion_compensation
+run_motion_compensation.sh
+code/external/deepmatching_1.2.2_c++_linux/deepmatching
+code/external/deepmatching_1.2.2_c++_mac/deepmatching
+
