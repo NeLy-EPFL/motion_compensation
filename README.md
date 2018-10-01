@@ -11,7 +11,9 @@ Code of the motion compensation algorithm described in the article “Imaging ne
   1. `cd code/external/deepmatching_1.2.2_c++_mac/` or `cd code/external/deepmatching_1.2.2_c++_linux/` depending on your OS 
   2. `make clean all`
 * Go back: `cd ../../..`
-* Edit “setPath.m”: set the paths of the MIJ library (**Note:** this might change if MATLAB version is upgraded)
+* Edit “setPath.m”: 
+  * Set the paths of the MIJ library (**Note:** this might change if MATLAB version is upgraded)
+  * Set the path where motion_compensation is installed (e.g.: /home/user/repos/motion_compensation)
 * Launch MATLAB, and inside:
   * Run “setPath.m”: `>> setPath`
   * Compile the main file corresponding to your OS:
@@ -51,10 +53,6 @@ You can then directly write in the terminal:
 motion_computation /path/to/data [-option | -option VALUE]
 ```
 To unset the alias, use the `unalias motion_computation` command.
-
-# /!\ Important notes
-
-Do not move the executable and the script (`motion_compensation` and `run_motion_compensation.sh`) as they have dependencies with relative paths!
 
 ## Usage of the executable
 ```
