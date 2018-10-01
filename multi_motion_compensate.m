@@ -130,7 +130,7 @@ for idx = 1:lxg
     fprintf(['parfor loop over idx ',num2str(idx),' finished in ',num2str(toc),'\n']);
 end
 if exist(tmpdir, 'dir')
-    rmdir(tmpdir);
+    rmdir(tmpdir, 's');
 end
 end
 

@@ -1,4 +1,4 @@
-function w = compute_motion(I1,I2,I1Match,I2Match,fnDeepMatching,param,t)
+function w = compute_motion(I1,I2,I1Match,I2Match,fnDeepMatching,param,t, tmpdir)
 %% Description
 % Compute motion with a brigthness constancy data term defined on (I1,I2)
 % and a feature matching similarity term defined on (I1Match,I2Match). The
@@ -15,6 +15,7 @@ function w = compute_motion(I1,I2,I1Match,I2Match,fnDeepMatching,param,t)
 % fnDeepMatching: filename of the deepmatching code
 % param: parameters of the algorithm (see 'default_parameters.m')
 % t: number of the frame in the image sequence
+% tmpdir: name of the temporary directory where deepmatching is computed
 %
 %     Copyright (C) 2017 D. Fortun, denis.fortun@epfl.ch
 %
@@ -33,15 +34,9 @@ I1=padarray(I1,[15,15],'replicate');
 I2=padarray(I2,[15,15],'replicate');
 
 %% Feature matching
-% Multiple workers might found that no 'tmp' dir exists and
-% then try to create it simultaneously, thus throwing an error.
-% Asking for the mkdir status here prevent matlab from throwing it.
-if ~exist('tmp', 'dir')
-    status = mkdir('tmp');
-end
-fnI1=['tmp/I1_',num2str(t),'.png'];
-fnI2=['tmp/I2_',num2str(t),'.png'];
-fnMatch=['tmp/match_',num2str(t),'.txt'];
+fnI1 = fullfile(tmpdir, ['I1_',num2str(t),'.png']);
+fnI2 = fullfile(tmpdir, ['I2_',num2str(t),'.png']);
+fnMatch = fullfile(tmpdir, ['match_',num2str(t),'.txt']);
 imwrite(uint8(I1Match),fnI1);
 imwrite(uint8(I2Match),fnI2);
 command = [fnDeepMatching,'/deepmatching ', fnI1,' ', fnI2, ' -out ',fnMatch]; s = system(command);
@@ -84,10 +79,3 @@ disp = 0;   % if disp=1; displays the results at each iteration
 w = of_l1_l2_fm_admm(I1,I2,sz0,matches,param,print,disp);
 
 w = crop_fit_size_center(w,[sz0(1),sz0(2),2]);
-
-if exist('tmp', 'dir')
-    rmdir('tmp');
-end
-
-
-

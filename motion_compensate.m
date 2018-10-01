@@ -29,6 +29,13 @@ function motion_compensate(fnInput1,fnInput2,fnMatch,fnDeepMatching,fnOut1,fnOut
 %     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %     GNU General Public License for more details.
 
+%% Temp folder
+start_time = datestr(now, 'yyyymmddHHMM');
+tmpdir = ['tmp', start_time];
+if ~exist(tmpdir, 'dir')
+    mkdir(tmpdir);
+end
+
 %% Input data
 seq=mijread_stack(fnInput1);
 seqW=mijread_stack(fnInput2);
@@ -56,7 +63,7 @@ parfor t=1:N-1 % Replace parfor by for if you don't want to parallelize
 
     [i10,i2]=midway(i1,i2);
 
-    w(:,:,:,t) = compute_motion(i10,i2,i1Match,i2Match,fnDeepMatching,param,t);
+    w(:,:,:,t) = compute_motion(i10,i2,i1Match,i2Match,fnDeepMatching,param,t, tmpdir);
     colorFlow(:,:,:,t)=flowToColor(w(:,:,:,t));
 end
                 
@@ -72,3 +79,7 @@ end
 mijwrite_stack(single(seqWarped),fnOut1);
 mijwrite_stack(single(seqwWarped),fnOut2);
 mijwrite_stack(single(colorFlow),fnColor,1);
+
+if exist(tmpdir, 'dir')
+    rmdir(tmpdir, 's');
+end
