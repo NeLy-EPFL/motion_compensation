@@ -129,13 +129,15 @@ if ~exist(fnSave, 'dir')
     mkdir(fnSave);
 end
 
-% Folder of the DeepMatching executable
-fnDeepMatching='code/external/deepmatching_1.2.2_c++_mac';
 
 %% Set Paths
-% Uses the setPath.m script
+% Uses the setPath.m script to find correct pahths
 % Path to ij.jar and mij.jar should be edited there !
 setPath;
+
+% Folder of the DeepMatching executable
+fnDeepMatching = fullfile(path_mc, 'code/external/deepmatching_1.2.2_c++_mac');
+
 
 %% Start parallel pool
 poolobj = gcp('nocreate');
