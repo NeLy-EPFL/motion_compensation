@@ -55,6 +55,7 @@ motion_computation /path/to/data [-option | -option VALUE]
 To unset the alias, use the `unalias motion_computation` command.
 
 ## Usage of the executable
+
 ```
 Usage: motion_compensation pathToData [-option | -option VALUE]
 
@@ -78,3 +79,5 @@ Examples:
   $ motion_compensation data/experiment_2 -result_dir results_2 -g "[10 20]"
   $ motion_compensation data/experiment_3 -N 5
 ```
+
+**Note:** currently, the code does not throw an error if an unknwon flag is used, or if a value is given without its flag. Instead, they are simply ignored.
