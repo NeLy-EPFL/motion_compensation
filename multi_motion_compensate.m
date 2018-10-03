@@ -110,8 +110,8 @@ for idx = 1:lxg
     [cY1, mY1, ng1] = motion_metrics(seqWarped);
     [cY2, mY2, ng2] = motion_metrics(seqwWarped);
 
-    fnOut1=[char(outdir(idx)),'/warped1.tif'];              % Sequence fnIn1 warped
-    fnOut2=[char(outdir(idx)),'/warped2.tif'];              % Sequence fnIn2 warped
+    fnOut1=[char(outdir(idx)),'/tdTom_warped.tif'];              % Sequence fnIn1 warped
+    fnOut2=[char(outdir(idx)),'/GC6_warped.tif'];              % Sequence fnIn2 warped
     fnColor=[char(outdir(idx)),'/color_flow.tif'];           % Color visualization of the motion field
     fnVector=[char(outdir(idx)),'/vectors.tif'];
 

@@ -120,8 +120,8 @@ matchingFn = regexp({dataFiles.name}, '^GC6.*\.tif$', 'match', 'once', 'ignoreca
 gc6Fn = matchingFn{find(~cellfun(@isempty, matchingFn), 1)}; % find the first 'GC6*.tif' match
 fnIn2 = fullfile(pathToData, gc6Fn);
 
-fnOut1 = fullfile(fnSave, 'warped1.tif');    % Sequence fnIn1 warped
-fnOut2 = fullfile(fnSave, 'warped2.tif');    % Sequence fnIn2 warped
+fnOut1 = fullfile(fnSave, 'tdTom_warped.tif');    % Sequence fnIn1 warped
+fnOut2 = fullfile(fnSave, [gc6Fn(1:end-4) '_warped.tif']);    % Sequence fnIn2 warped
 fnColor = fullfile(fnSave, 'colorFlow.tif'); % Color visualization of the motion field
 
 % Create results folder if not already existing
