@@ -102,7 +102,7 @@ for idx = 1:lxg
         wx = load([char(outdir(idx)),'/wx_frame',num2str(t),'.dat']);
         wy = load([char(outdir(idx)),'/wy_frame',num2str(t),'.dat']);
         colorFlow(:,:,:,t) = flowToColor(cat(3,wx,wy));
-        vectorFlow(:,:,t) = flowToVectorImage(cat(3,wx,wy),[18,18],[512,512],idx*10^N+t,tmpdir);
+        vectorFlow(:,:,t) = flowToVectorImage(cat(3,wx,wy),[18,18],[512,512],idx*10^(ceil(log10(N+1))+1)+t,tmpdir);
         seqWarped(:,:,t+1)=warpImg(seq(:,:,t+1),wx,wy);
         seqwWarped(:,:,t+1)=warpImg(seqW(:,:,t+1),wx,wy);
     end 
