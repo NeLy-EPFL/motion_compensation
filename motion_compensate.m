@@ -1,4 +1,4 @@
-function motion_compensate(fnInput1,fnInput2,fnMatch,fnDeepMatching,fnOut1,fnOut2,fnColor,N,step,param)
+function motion_compensate(fnInput1,fnInput2,fnMatch,fnDeepMatching,fnOut1,fnOut2,fnColor,N,step,offset,param)
 %% Description
 % Motion is estimated with a brigthness constancy data term defined on fnInput1 
 % and a feature matching similarity term defined on fnMatch. The sequences fnIput1 and
@@ -46,41 +46,62 @@ if step==-1
     step = N;
 end
 
-for N1=1:step:N
+stop_value = min(offset + N - 1, size(original_seq, 3));
+for N1=offset:step:stop_value
+    N2=min(N1+step, N);
+
     original_seq=mijread_stack(fnInput1);
     %whos original_seq
-    original_seqW=mijread_stack(fnInput2);
-    %whos original_seqW
-    original_seqMatch=mijread_stack(fnMatch);
-    %whos original_seqMatch
-
-    N2=min(N1+step, N);
     seq=double(cat(3, original_seq(:,:,1), original_seq(:,:,N1:N2)));
     % whos seq
+    clear original_seq
     seqRescale=(seq-min(seq(:)))/(max(seq(:))-min(seq(:)))*255;
     % whos seqRescale
+    
+    original_seqW=mijread_stack(fnInput2);
+    %whos original_seqW
     seqW=double(cat(3, original_seqW(:,:,1), original_seqW(:,:,N1:N2)));
     % whos seqW
-    seqMatch=double(cat(3, original_seqMatch(:,:,1), original_seqMatch(:,:,N1:N2)));
-    % whos seqMatch
-    seqMatch=(seqMatch-min(seqMatch(:)))/(max(seqMatch(:))-min(seqMatch(:)))*255;
-    % whos seqMatch
+    clear original_seqW
+    if param.gamma ~= 0
+        original_seqMatch=mijread_stack(fnMatch);
+        %whos original_seqMatch
+        seqMatch=double(cat(3, original_seqMatch(:,:,1), original_seqMatch(:,:,N1:N2)));
+        % whos seqMatch
+        clear original_seqMatch
+        seqMatch=(seqMatch-min(seqMatch(:)))/(max(seqMatch(:))-min(seqMatch(:)))*255;
+        % whos seqMatch
+    else
+        seqMatch = [];
+    end
 
     clear original_seq original_seqW original_seqMatch
     
     %% Motion estimation
     w=zeros(size(seqRescale,1),size(seqRescale,2),2,size(seqRescale,3)-1);
     %colorFlow=zeros(size(seqRescale,1),size(seqRescale,2),3,size(seqRescale,3)-1);
+    
     i1=seqRescale(:,:,1);
-    i1Match=seqMatch(:,:,1);
+    
+    if param.gamma ~= 0
+        i1Match=seqMatch(:,:,1);
+    else
+        i1Match = [];
+    end
+
     parfor t=1:step%-1 % Replace parfor by for if you don't want to parallelize
         fprintf('Frame %i\n',t);
         i2=seqRescale(:,:,t+1);
-        i2Match=seqMatch(:,:,t+1);
-    
+        if param.gamma ~= 0
+            fprintf('parfor in param.gamma not 0 \n')
+            i2Match = seqMatch(:,:,t+1);
+        else
+            i2Match = [];
+        end
+        exit
         [i10,i2]=midway(i1,i2);
     
-        w(:,:,:,t) = compute_motion(i10,i2,i1Match,i2Match,fnDeepMatching,param,t, tmpdir);
+        w(:,:,:,t) = compute_motion(i10, i2, i1Match, i2Match, fnDeepMatching, param, t, tmpdir);
         %colorFlow(:,:,:,t)=flowToColor(w(:,:,:,t));
     end
     
@@ -102,21 +123,21 @@ for N1=1:step:N
         previous=mijread_stack(fnOut1);
         %mijwrite_stack(single(cat(3, previous, seqWarped(:,:,2:end))), fnOut1);
         mijwrite_stack(cat(3, previous, uint16(seqWarped(:,:,2:end))), fnOut1);
-        fprintf(strcat('fnOut1 updated with frames', {' '}, num2str(N1), {' '}, 'to', {' '}, num2str(N2), '\n'))
+        fprintf("fnOut1 updated with frames " + num2str(N1) + " to " + num2str(N2) + "\n")
     else
         %mijwrite_stack(single(seqWarped(:,:,2:end)), fnOut1);
         mijwrite_stack(uint16(seqWarped(:,:,2:end)), fnOut1);
-        fprintf(strcat('fnOut1 updated with frames', {' '}, num2str(N1), {' '}, 'to', {' '}, num2str(N2), '\n'))
+        fprintf("fnOut1 updated with frames " + num2str(N1) + " to " + num2str(N2) + "\n")
     end
     if isfile(fnOut2)
         previous=mijread_stack(fnOut2);
         %mijwrite_stack(single(cat(3, previous, seqWarped(:,:,2:end))), fnOut2);
-        mijwrite_stack(cat(3, previous, uint16(seqWarped(:,:,2:end))), fnOut2);
-        fprintf(strcat('fnOut2 updated with frames', {' '}, num2str(N1), {' '}, 'to', {' '}, num2str(N2), '\n'))
+        mijwrite_stack(cat(3, previous, uint16(seqwWarped(:,:,2:end))), fnOut2);
+        fprintf("fnOut1 updated with frames " + num2str(N1) + " to " + num2str(N2) + "\n")
     else
         %mijwrite_stack(single(seqwWarped(:,:,2:end)), fnOut2);
         mijwrite_stack(uint16(seqwWarped(:,:,2:end)), fnOut2);
-        fprintf(strcat('fnOut2 updated with frames', {' '}, num2str(N1), {' '}, 'to', {' '}, num2str(N2), '\n'))
+        fprintf("fnOut1 updated with frames " + num2str(N1) + " to " + num2str(N2) + "\n")
     end
     %mijwrite_stack(single(colorFlow),fnColor,1);
 end

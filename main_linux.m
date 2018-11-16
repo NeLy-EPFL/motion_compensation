@@ -63,7 +63,9 @@ if sum(strcmp(varargin, '-h')) || sum(strcmp(varargin, '-help')) || ...
         '    -s VALUE           - Number of frames processed at once.' ...
         '                         default is N' ...
         '    -m                 - use multi_motion_compensation function' ...
-        '    --keep-prev            - Remove previous results if they exist.'
+        '    --keep-prev        - Remove previous results if they exist.' ...
+        '    --offset VALUE     - Start processing from this frame. Should be used in' ...
+        '                         combination with --keep-prev flag. Default is 1.' ...
         'Examples:\n' ...
         '  $ motion_compensation data/experiment_1 -l 500 -g 100 -result_dir results_1\n' ... 
         '  $ motion_compensation data/experiment_2 -result_dir results_2 -g "[10 20]"\n' ...
@@ -143,6 +145,14 @@ else
     step = N;
 end
 
+% offset
+if sum(strcmp(varargin, '--offset'))
+    offsetIndex = find(strcmp(varargin, '--offset'));
+    offset = str2double(varargin{offsetIndex + 1});
+else
+    offset = 1;
+end
+
 %lambda
 %gamma
 %N
@@ -192,7 +202,8 @@ fnDeepMatching = fullfile(path_mc, 'code/external/deepmatching_1.2.2_c++_linux')
 %% Start parallel pool
 poolobj = gcp('nocreate');
 if isempty(poolobj)
-    parpool;
+    fprintf('poolobj was empty. Creating new parpool.\n')
+    parpool(28);
 end
 
 %% Perform motion compensation
@@ -202,7 +213,7 @@ if ~multi_compensation
     param.lambda = lambda;    % Regularization parameter
     param.gamma = gamma;      % Sets the strength of the feature matching constraint
     motion_compensate(fnIn1, fnIn2, fnMatch, fnDeepMatching, ...
-                      fnOut1, fnOut2, fnColor, N, step, param);
+                      fnOut1, fnOut2, fnColor, N, step, offset, param);
 end
               
 %% Perform parallelized motion compensation for multiple lambdas and gammas

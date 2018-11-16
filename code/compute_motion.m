@@ -34,57 +34,61 @@ I1=padarray(I1,[15,15],'replicate');
 I2=padarray(I2,[15,15],'replicate');
 
 %% Feature matching
-fnI1 = fullfile(tmpdir, ['I1_',num2str(t),'.png']);
-fnI2 = fullfile(tmpdir, ['I2_',num2str(t),'.png']);
-fnMatch = fullfile(tmpdir, ['match_',num2str(t),'.txt']);
-imwrite(uint8(I1Match),fnI1);
-imwrite(uint8(I2Match),fnI2);
-while ~isfile(fnI1)
-    fprintf('Seems like fnI1 was not written correctly yet?\n');
-    pause;
-end
-while ~isfile(fnI2)
-    fprintf('Seems like fnI2 was not written correctly yet?\n');
-    pause;
-end
-
-command = [fnDeepMatching,'/deepmatching ', fnI1,' ', fnI2, ' -out ',fnMatch];
-s = 1;
-while s
-    s = system(command);
-end
-fprintf(strcat('Done with deepmatching of frame', {' '}, num2str(t), '\n'))
-command = ['rm ',fnI1]; s = system(command);
-command = ['rm ',fnI2]; s = system(command);
-formatSpec = '%u %u %u %u %f %u';
-sizeCorresp = [6 Inf];
-f=fopen(fnMatch);
-corresp = fscanf(f,formatSpec,sizeCorresp);
-command = ['rm ',fnMatch]; s = system(command);
-
-thresh=param.threshMatch;
-Iseg=segment(I1Match,'variance',thresh);
-
-matches = zeros(5,1);
-k=0;
-for i=1:size(corresp,2)
-    if corresp(1,i)>0 && corresp(1,i)<=sz0(2) && corresp(2,i)>0 && corresp(2,i)<=sz0(1)
-        if Iseg(corresp(2,i),corresp(1,i)) == 1
-            k = k+1;
-            matches(1,k) = corresp(1,i);
-            matches(2,k) = corresp(2,i);
-            matches(4,k) = corresp(4,i)-corresp(2,i);
-            matches(3,k) = corresp(3,i)-corresp(1,i);
+if param.gamma ~= 0
+    fnI1 = fullfile(tmpdir, ['I1_',num2str(t),'.png']);
+    fnI2 = fullfile(tmpdir, ['I2_',num2str(t),'.png']);
+    fnMatch = fullfile(tmpdir, ['match_',num2str(t),'.txt']);
+    imwrite(uint8(I1Match),fnI1);
+    imwrite(uint8(I2Match),fnI2);
+    while ~isfile(fnI1)
+        fprintf('Seems like fnI1 was not written correctly yet?\n');
+        pause;
+    end
+    while ~isfile(fnI2)
+        fprintf('Seems like fnI2 was not written correctly yet?\n');
+        pause;
+    end
+    
+    command = [fnDeepMatching,'/deepmatching ', fnI1,' ', fnI2, ' -out ',fnMatch];
+    s = 1;
+    while s
+        s = system(command);
+    end
+    fprintf(strcat('Done with deepmatching of frame', {' '}, num2str(t), '\n'))
+    command = ['rm ',fnI1]; s = system(command);
+    command = ['rm ',fnI2]; s = system(command);
+    formatSpec = '%u %u %u %u %f %u';
+    sizeCorresp = [6 Inf];
+    f=fopen(fnMatch);
+    corresp = fscanf(f,formatSpec,sizeCorresp);
+    command = ['rm ',fnMatch]; s = system(command);
+    
+    thresh=param.threshMatch;
+    Iseg=segment(I1Match,'variance',thresh);
+    
+    matches = zeros(5,1);
+    k=0;
+    for i=1:size(corresp,2)
+        if corresp(1,i)>0 && corresp(1,i)<=sz0(2) && corresp(2,i)>0 && corresp(2,i)<=sz0(1)
+            if Iseg(corresp(2,i),corresp(1,i)) == 1
+                k = k+1;
+                matches(1,k) = corresp(1,i);
+                matches(2,k) = corresp(2,i);
+                matches(4,k) = corresp(4,i)-corresp(2,i);
+                matches(3,k) = corresp(3,i)-corresp(1,i);
+            end
         end
     end
-end
-
-scores = corresp(5,:);
-idx = find(corresp(5,:));
-scores = scores(scores~=0);
-scores = (scores-min(scores))/(max(scores)-min(scores));
-for j=1:length(idx)
-    matches(5,idx(j)) = scores(j);
+    
+    scores = corresp(5,:);
+    idx = find(corresp(5,:));
+    scores = scores(scores~=0);
+    scores = (scores-min(scores))/(max(scores)-min(scores));
+    for j=1:length(idx)
+        matches(5,idx(j)) = scores(j);
+    end
+else
+    matches = zeros(5, 1);
 end
 
 %% Optical flow
