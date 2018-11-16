@@ -39,7 +39,21 @@ fnI2 = fullfile(tmpdir, ['I2_',num2str(t),'.png']);
 fnMatch = fullfile(tmpdir, ['match_',num2str(t),'.txt']);
 imwrite(uint8(I1Match),fnI1);
 imwrite(uint8(I2Match),fnI2);
-command = [fnDeepMatching,'/deepmatching ', fnI1,' ', fnI2, ' -out ',fnMatch]; s = system(command);
+while ~isfile(fnI1)
+    fprintf('Seems like fnI1 was not written correctly yet?\n');
+    pause;
+end
+while ~isfile(fnI2)
+    fprintf('Seems like fnI2 was not written correctly yet?\n');
+    pause;
+end
+
+command = [fnDeepMatching,'/deepmatching ', fnI1,' ', fnI2, ' -out ',fnMatch];
+s = 1;
+while s
+    s = system(command);
+end
+fprintf(strcat('Done with deepmatching of frame', {' '}, num2str(t), '\n'))
 command = ['rm ',fnI1]; s = system(command);
 command = ['rm ',fnI2]; s = system(command);
 formatSpec = '%u %u %u %u %f %u';
@@ -77,5 +91,7 @@ end
 print = 0;  % if print =1:verbose mode
 disp = 0;   % if disp=1; displays the results at each iteration
 w = of_l1_l2_fm_admm(I1,I2,sz0,matches,param,print,disp);
+
+%clear I1 I2 matches Iseg corresp scores
 
 w = crop_fit_size_center(w,[sz0(1),sz0(2),2]);

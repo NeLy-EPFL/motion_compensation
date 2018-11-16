@@ -11,12 +11,10 @@ function main_linux(pathToData, varargin)
 %% Input
 % pathToData: path to the folder containing the sequences in TIF format.
 %             It should contain two files:
-%               - tdTom.tif: sequence used for the brightness constancy
+%               - red.tif: sequence used for the brightness constancy
 %               term and feature matching similarity term
-%               - GC6*.tif: sequence warped with the motion field. Note
-%               that the name should start with 'GC6' (any capitalization 
-%               patern, e.g.: GC6, Gc6, gc6,...). If multiple exist, only 
-%               the first found is used.
+%               - green.tif: sequence warped with the motion field.
+%               If multiple exist, only the first found is used.
 % 
 %% Optional Input
 % Optional input should be used as `-option` or `-option VALUE`. Order of
@@ -50,8 +48,8 @@ if sum(strcmp(varargin, '-h')) || sum(strcmp(varargin, '-help')) || ...
     fprintf([
         'Usage: motion_compensation pathToData [-option | -option VALUE]\n\n' ...
         '    pathToData         - Path to the folder containing the 2 sequences:\n' ...
-        '                           1. tdTom.tif: used for computing the motion field\n' ...
-        '                           2. GC6*.tif: sequence to be warped by the motion\n' ...
+        '                           1. red.tif: used for computing the motion field\n' ...
+        '                           2. green.tif: sequence to be warped by the motion\n' ...
         '                                        field (capitalization does not matter)\n\n' ...
         '    -h|-help           - Display this help message\n' ...
         '    -l VALUE           - Regularization parameter lambda, default is 1000\n' ...
@@ -62,19 +60,24 @@ if sum(strcmp(varargin, '-h')) || sum(strcmp(varargin, '-help')) || ...
         '    -N VALUE           - Number of frames to process (use -1 for all frames),\n' ...
         '                         default is -1\n' ...
         '    -results_dir PATH  - Path to the result folder, default is results/\n\n' ...
+        '    -s VALUE           - Number of frames processed at once.' ...
+        '                         default is N' ...
+        '    -m                 - use multi_motion_compensation function' ...
+        '    --keep-prev            - Remove previous results if they exist.'
         'Examples:\n' ...
         '  $ motion_compensation data/experiment_1 -l 500 -g 100 -result_dir results_1\n' ... 
         '  $ motion_compensation data/experiment_2 -result_dir results_2 -g "[10 20]"\n' ...
         '  $ motion_compensation data/experiment_3 -N 5\n'])
     return
 end
+
 % Lambda(s) parameter
 if sum(strcmp(varargin, '-l')) 
     lambdaIndex = find(strcmp(varargin, '-l'));
     lambda = str2num(varargin{lambdaIndex + 1});
     if ~isscalar(lambda)
         lambdas = lambda;
-        multi_compensation = true;
+        multi_compensation = true
     end
 else
     lambda = 1000;
@@ -90,6 +93,23 @@ if sum(strcmp(varargin, '-g'))
 else
     gamma = 100;
 end
+
+if sum(strcmp(varargin, '-m'))
+    multi_compensation = true;
+    if isscalar(lambda)
+        lambdas = [lambda]
+    end
+    if isscalar(gamma)
+        gammas = [gamma]
+    end
+end
+
+if sum(strcmp(varargin, '--keep-prev'))
+    keep_previous_results = true;
+else
+    keep_previous_results = false;
+end
+
 % Number of frames to process
 % Motion is estimated on frames 1 to N. If N == -1, motion is estimated on
 % the whole sequence
@@ -103,6 +123,7 @@ if sum(strcmp(varargin, '-N'))
 else
     N = -1;
 end
+
 % Results folder
 if sum(strcmp(varargin, '-results_dir')) 
     fnSaveIndex = find(strcmp(varargin, '-results_dir'));
@@ -111,22 +132,51 @@ else
     fnSave = 'results/';
 end
 
-% Initialize filenames
-fnMatch = fullfile(pathToData, 'tdTom.tif');  % Sequence used for the feature matching similarity term
-fnIn1 = fullfile(pathToData, 'tdTom.tif');    % Sequence used for the brightness constancy term 
-% Find sequence warped with the motion field estimated from fnIn1 and fnMatch
-dataFiles = dir(pathToData);
-matchingFn = regexp({dataFiles.name}, '^GC6.*\.tif$', 'match', 'once', 'ignorecase');
-gc6Fn = matchingFn{find(~cellfun(@isempty, matchingFn), 1)}; % find the first 'GC6*.tif' match
-fnIn2 = fullfile(pathToData, gc6Fn);
+% Step
+if sum(strcmp(varargin, '-s'))
+    stepIndex = find(strcmp(varargin, '-s'));
+    step = str2double(varargin{stepIndex + 1});
+    if N > 0 && step > N
+        step = N;
+    end
+else
+    step = N;
+end
 
-fnOut1 = fullfile(fnSave, 'tdTom_warped.tif');    % Sequence fnIn1 warped
-fnOut2 = fullfile(fnSave, [gc6Fn(1:end-4) '_warped.tif']);    % Sequence fnIn2 warped
+%lambda
+%gamma
+%N
+%fnSave
+%step
+
+% Initialize filenames
+% fnMatch = fullfile(pathToData, 'tdTom.tif');  % Sequence used for the feature matching similarity term
+% fnIn1 = fullfile(pathToData, 'tdTom.tif');    % Sequence used for the brightness constancy term 
+fnMatch = fullfile(pathToData, 'red.tif');  % Sequence used for the feature matching similarity term
+fnIn1 = fullfile(pathToData, 'red.tif');    % Sequence used for the brightness constancy term 
+% Find sequence warped with the motion field estimated from fnIn1 and fnMatch
+% dataFiles = dir(pathToData);
+% matchingFn = regexp({dataFiles.name}, '^GC6.*\.tif$', 'match', 'once', 'ignorecase');
+% gc6Fn = matchingFn{find(~cellfun(@isempty, matchingFn), 1)}; % find the first 'GC6*.tif' match
+% fnIn2 = fullfile(pathToData, gc6Fn);
+fnIn2 = fullfile(pathToData, 'green.tif');
+
+fnSave = fullfile(fnSave, strcat('l', num2str(lambda), 'g', num2str(gamma)));
+%fnOut1 = fullfile(fnSave, 'tdTom_warped.tif');    % Sequence fnIn1 warped
+fnOut1 = fullfile(fnSave, 'red_warped.tif');    % Sequence fnIn1 warped
+%fnOut2 = fullfile(fnSave, [gc6Fn(1:end-4) '_warped.tif']);    % Sequence fnIn2 warped
+fnOut2 = fullfile(fnSave, 'green_warped.tif');    % Sequence fnIn2 warped
 fnColor = fullfile(fnSave, 'colorFlow.tif'); % Color visualization of the motion field
 
 % Create results folder if not already existing
 if ~exist(fnSave, 'dir')
     mkdir(fnSave);
+elseif ~keep_previous_results && isfile(fnOut1)
+    delete(fnOut1);
+elseif ~keep_previous_results && isfile(fnOut2)
+    delete(fnOut2);
+elseif ~keep_previous_results && isfile(fnColor)
+    delete(fnColor);
 end
 
 
@@ -151,9 +201,8 @@ if ~multi_compensation
     param = default_parameters();
     param.lambda = lambda;    % Regularization parameter
     param.gamma = gamma;      % Sets the strength of the feature matching constraint
-
     motion_compensate(fnIn1, fnIn2, fnMatch, fnDeepMatching, ...
-                      fnOut1, fnOut2, fnColor, N, param);
+                      fnOut1, fnOut2, fnColor, N, step, param);
 end
               
 %% Perform parallelized motion compensation for multiple lambdas and gammas

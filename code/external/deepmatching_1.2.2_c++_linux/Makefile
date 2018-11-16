@@ -4,7 +4,8 @@ OS_NAME=$(shell uname -s)
 ifeq ($(OS_NAME),Linux) 
 #old#  LAPACKLDFLAGS=/usr/lib64/atlas/libsatlas.so   # single-threaded blas
   #LAPACKLDFLAGS=/usr/lib/atlas-base/libatlas.so /usr/lib/libblas/libblas.so
-  LAPACKLDFLAGS=/usr/lib/x86_64-linux-gnu/openblas/libblas.so  # multi-threaded blas for workstation
+  #LAPACKLDFLAGS=/usr/lib/x86_64-linux-gnu/openblas/libblas.so  # multi-threaded blas for workstation
+  LAPACKLDFLAGS=/ssoft/spack/paien/v2/opt/spack/linux-rhel7-x86_E5v4_Mellanox/gcc-7.3.0/openblas-0.2.20-qh4dbkdkqwtt74pa3q72olik66cfowjw/lib/libopenblas_haswellp-r0.2.20.so  
   BLAS_THREADING=-D MULTITHREADED_BLAS # remove this if wrong
 endif
 ifeq ($(OS_NAME),Darwin)  # Mac OS X

@@ -1,7 +1,7 @@
 %% Lines to edit
-fnIJ  = '/usr/local/MATLAB/R2018a/java/jar/ij.jar';    % Path to "ij.jar"
-fnMIJ = '/usr/local/MATLAB/R2018a/java/jar/mij.jar';   % Path to "mij.jar"
-path_mc = '~/talabot/motion_compensation'; % Path to motion_compensation
+fnIJ  = '/home/aymanns/motion_compensation/code/external/ij.jar';    % Path to "ij.jar"
+fnMIJ = '/home/aymanns/motion_compensation/code/external/mij.jar';   % Path to "mij.jar"
+path_mc = '~/motion_compensation'; % Path to motion_compensation
 
 % Add paths
 javaaddpath(fnIJ);
