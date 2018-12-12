@@ -203,7 +203,7 @@ fnDeepMatching = fullfile(path_mc, 'code/external/deepmatching_1.2.2_c++_linux')
 poolobj = gcp('nocreate');
 if isempty(poolobj)
     fprintf('poolobj was empty. Creating new parpool.\n')
-    parpool(28);
+    parpool;
 end
 
 %% Perform motion compensation

@@ -89,16 +89,14 @@ for N1=offset:step:stop_value
         i1Match = [];
     end
 
-    parfor t=1:step%-1 % Replace parfor by for if you don't want to parallelize
+    parfor t=1:size(seqRescale, 3)-1%step%-1 % Replace parfor by for if you don't want to parallelize
         fprintf('Frame %i\n',t);
         i2=seqRescale(:,:,t+1);
-        if param.gamma ~= 0
-            fprintf('parfor in param.gamma not 0 \n')
+        if size(seqMatch, 1) ~= 0
             i2Match = seqMatch(:,:,t+1);
         else
             i2Match = [];
         end
-        exit
         [i10,i2]=midway(i1,i2);
     
         w(:,:,:,t) = compute_motion(i10, i2, i1Match, i2Match, fnDeepMatching, param, t, tmpdir);
@@ -111,7 +109,7 @@ for N1=offset:step:stop_value
     seqWarped=seq;
     seqwWarped=seqW;
     
-    for t=1:step%-1
+    for t=1:size(seq, 3)-1%step%-1
         seqWarped(:,:,t+1)=warpImg(seq(:,:,t+1), w(:,:,1,t), w(:,:,2,t));
         seqwWarped(:,:,t+1)=warpImg(seqW(:,:,t+1), w(:,:,1,t), w(:,:,2,t));
     end

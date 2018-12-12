@@ -1,19 +1,22 @@
 #!/bin/bash
 #SBATCH --workdir /home/aymanns/motion_compensation
-#SBATCH --partition debug
+#SBATCH --partition parallel
 #SBATCH --nodes 1
 #SBATCH --ntasks 1
-#SBATCH --cpus-per-task 1
+#SBATCH --cpus-per-task 28
 #SBATCH --mem 128G
-#SBATCH --time 01:00:00
+#SBATCH --time 05:00:00
+
 module load matlab
 module load jdk
 module load gcc/7.3.0
 module load openblas/0.2.20-openmp
 
 echo STARTED at `date`
-filename="/scratch/aymanns/181114_Rpr_R57C10_GC6s_tdTom/Fly3/001_coronal/2p/"
+filename="/scratch/aymanns/181207_Rpr_R57C10_GC6s_tdTom/Fly1/004_coronal/2p/"
+#filename="/scratch/aymanns/181204_Ubx_Rpr_GC6s_tdTom/Fly2/001_coronal/2p/"
+echo ${filename}
 results_dir="${filename}results"
-command="main_linux('$filename', '-l', '800', '-g', '10', '-s', '28', '-results_dir', '$results_dir')"
+command="main_linux('$filename', '-l', '800', '-g', '0', '-s', '28', '-results_dir', '$results_dir')" # , '--keep-prev', '--offset', '86')"
 matlab -nodesktop -nodisplay -r "$command"
 echo FINISHED at `date`
