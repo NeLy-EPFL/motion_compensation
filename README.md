@@ -5,6 +5,7 @@ Code of the motion compensation algorithm described in the article “Imaging ne
 ## How to install
 
 * Install the MIJ library (http://bigwww.epfl.ch/sage/soft/mij/): copy the files “ij.jar” and “mij.jar” in the java folder of MATLAB (should be `/path/to/MATLAB/java/jar/`, e.g.: `/usr/local/MATLAB/R2018a/java/jar/`).
+* Note that it requires MATLAB Compiler and Parallel Computing Toolbox (both can be installed through the MATLAB installer)
 * Clone the repository: `git clone https://github.com/NeLy-EPFL/motion_compensation`
 * Enter it: `cd motion_compensation`
 * Compile the deep matching code using the following commands in directory: 
