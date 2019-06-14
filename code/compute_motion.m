@@ -54,7 +54,7 @@ if param.gamma ~= 0
     while s
         s = system(command);
     end
-    fprintf(strcat('Done with deepmatching of frame', {' '}, num2str(t), '\n'))
+    fprintf(['Done with deepmatching of frame ' num2str(t) '\n'])
     command = ['rm ',fnI1]; s = system(command);
     command = ['rm ',fnI2]; s = system(command);
     formatSpec = '%u %u %u %u %f %u';
