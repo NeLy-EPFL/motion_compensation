@@ -38,7 +38,7 @@ To run the program, write in the terminal:
 ```
 ./run_motion_computation.sh /path/to/MATLAB /path/to/data [-option | -option VALUE]
 ```
-
+where `path/to/MATLAB` leads to a MATLAB release (e.g.: `/usr/local/MATLAB/R2018a`).  
 To see the available options and optional arguments:
 ```
 ./run_motion_computation.sh /path/to/MATLAB -h
